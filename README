@@ -1,0 +1,13 @@
+phpMyAPRS
+
+Copyright (c) Morten Johansen <morten@bzzt.no>
+
+A PHP framework for communicating with the APRS-IS network.
+This framework is released for use under the GPLv3 license as attached.
+
+The latest version can be found on https://github.com/Hamlabs/phpMyAPRS
+
+Good luck :)
+
+Morten
+
