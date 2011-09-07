@@ -1,0 +1,4 @@
+## Mysql avstands-sp¿rring som fungerer: 
+
+SELECT *,(((acos(sin((66*pi()/180))*sin((`latitude`*pi()/180))+cos((66*pi()/180))*cos((`latitude`*pi()/180))*cos(((13-`longitude`)*pi()/180))))*180/pi()*60*1.1515*1.609344)) as distance FROM `positions` HAVING distance <= 40
+
