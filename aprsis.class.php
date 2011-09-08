@@ -37,6 +37,8 @@ class aprsObjectDispatcher {
 		if(substr($raw, 0, 1) == '#') return false; // Comment lines from APRS-IS are ignored
 		var_dump(substr($split[1], 0, 1));
 		switch(true) {
+			case preg_match('/^;[A-Za-z0-9_\ ]{9}\*/', $split[1]):
+				return aprsObject::dispatch($raw);
 			case substr($split[1], 0, 1) == '@':
 			case substr($split[1], 0, 1) == '=':
 			case substr($split[1], 0, 1) == '!':
@@ -49,7 +51,7 @@ class aprsObjectDispatcher {
 		}
 	}
 	
-	// Er ikke sikker pŒ hvordan jeg vil l¿se dette...
+	// Er ikke sikker pÅ’ hvordan jeg vil lÂ¿se dette...
 	static function old_dispatch($raw) {
 		$match = array();
 		switch(true) {
@@ -78,11 +80,15 @@ class aprsBase {
 		$this->_parseRawContent();
 	}
 	
-	function getRawContent($raw) {
+	function getRawContent() {
 		return $this->raw;
 	}
 
-	function _parseRawContent() {
+	function __toString() {
+		return $this->getRawContent();
+	}
+
+	function _parseRawContent($skip=false) {
 		$a = explode('>', $this->raw, 2);
 		$this->sender = $a[0];
 		$b = explode(':', $a[1], 2);
@@ -91,7 +97,15 @@ class aprsBase {
 	}
 
 	function _generateRawContent() {
-		$this->raw = sprintf('%s>%s:%s', $this->sender, implode(',', $this->path), $this->contents);
+		$this->raw = sprintf('%s:%s', $this->_generateRawHeader(), $this->_generateRawPayload());
+	}
+
+	function _generateRawHeader() {
+		return sprintf('%s>%s', $this->sender, implode(',', $this->path));
+	}
+
+	function _generateRawPayload() {
+		return $this->contents;
 	}
 
 	static function dispatch($raw) {
@@ -121,12 +135,96 @@ class aprsBase {
 		$this->path[] = $hop;
 	}
 
-	function getContents() {
+	function getPayload() {
 		return $this->contents;
 	}
 
-	function setContents($contents) {
+	function setPayload($contents) {
 		$this->contents = $contents;
+	}
+}
+
+class aprsPosition extends aprsBase {
+	var $time;
+	var $sympos;
+	var $text;
+
+	function getTime() {
+		return $this->time;
+	}
+
+	function setTime($time) {
+		$this->time = $time;
+	}
+
+	function getSympos() {
+		return $this->sympos;
+	}
+
+	function setSympos($sympos) {
+		$this->sympos = $sympos;
+	}
+
+	function getText() {
+		return $this->text;
+	}
+
+	function setText($text) {
+		$this->text = $text;
+	}
+
+	function _parseRawContent($skip=false) {
+		// Sample payload
+		// "!6246.73N/00714.92E#14.0V Molde, Tussen digi"
+		parent::_parseRawContent();
+		if(!$skip) {
+			$matches = array();
+			if(!preg_match('/^[\@\=\!\/](([0-9]{6}[hz])?([0-9]{4}\.[0-9]{2}[NS].[0-9]{5}\.[0-9]{2}[EW].))(.*)$/', $this->getPayload(), $matches)) {
+				printf("%s: Could not parse supposed position [%s]\n", __METHOD__, $this->getPayload());
+			} else {
+				$this->setTime($matches[2]);
+				$this->setSympos($matches[3]);
+				$this->setText($matches[4]);
+			}
+		}
+	}
+
+	function _generateRawPayload() {
+		return sprintf('%s%s%s', $this->getTime(), $this->getSympos(), $this->getText());	
+	}
+
+}
+
+class aprsObject extends aprsPosition {
+	var $name;
+	
+	function getName() {
+		return $this->name;
+	}
+
+	function setName($name) {
+		$this->name = $name;
+	}
+
+	function _parseRawContent($skip=false) {
+		// Sample payload
+		// ";LA7F     *071835z6715.47N/01522.80E-LA7F Clubstation Fauskegruppen av NRRL"
+		parent::_parseRawContent(true);
+		if(!$skip) { 
+			$matches = array();
+			if(!preg_match('/^;(.{9})\*(([0-9]{6}[hz])?([0-9]{4}\.[0-9]{2}[NS].[0-9]{5}\.[0-9]{2}[EW].))(.*)$/', $this->getPayload(), $matches)) {
+				printf("%s: Could not parse supposed object [%s]\n", __METHOD__, $this->getPayload());
+			} else {
+				$this->setName(trim($matches[1]));
+				$this->setTime($matches[3]);
+				$this->setSympos($matches[4]);
+				$this->setText($matches[5]);
+			}
+		}
+	}
+
+	function _generateRawPayload() {
+		return sprintf(';%-9s*%s%s%s', $this->getName(), $this->getTime(), $this->getSympos(), $this->getText());	
 	}
 }
 
@@ -136,5 +234,3 @@ class aprsStatus extends aprsBase {
 class aprsMessage extends aprsBase {
 }
 
-class aprsPosition extends aprsBase {
-}
