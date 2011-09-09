@@ -3,8 +3,8 @@
 require_once('autoload.php');
 
 // Set up APRS-IS connection
-$ac = $__CONF['aprsis'];
-$aprs = new aprsis($ac['server'], isset($ac['port'])?$ac['port']:'14580', $ac['callsign'], $ac['passcode'], $ac['filter']);
+$ac = $__PHPMYAPRSCONF['aprsis'];
+$aprs = new aprsIsConnection($ac['server'], isset($ac['port'])?$ac['port']:'14580', $ac['callsign'], $ac['passcode'], $ac['filter']);
 
 if(pcntl_fork()) {
 	echo "RX process going!\n";

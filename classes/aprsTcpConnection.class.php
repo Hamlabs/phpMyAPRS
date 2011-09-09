@@ -1,6 +1,6 @@
 <?php
 
-class tcp {
+class aprsTcpConnection {
 	var $dbg;
 	var $h;
 	
