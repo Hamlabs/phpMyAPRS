@@ -1,7 +1,7 @@
 <?php
 require_once('autoload.php');
 
-$q = new aprsPacketQueueIPC();
+$q = aprsConfig::getQueue();
 
 if(empty($argv[1])) {
 	while($foo = $q->get()) {

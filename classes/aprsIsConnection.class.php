@@ -29,4 +29,15 @@ class aprsIsConnection extends aprsTcpConnection {
 		}
 	}
 
+	function executeTransmitSpooler() {
+		$txwait = aprsConfig::get('aprsis', 'tx-wait');
+		$queue = aprsConfig::getQueue();
+
+		while($msg = $queue->get()) {
+			echo "TX: $msg\n";
+			$this->puts($msg);
+			usleep($txwait*1000);
+		}
+	}
+
 }

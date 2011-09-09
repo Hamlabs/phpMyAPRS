@@ -2,19 +2,29 @@
 
 class aprsPacketQueueIPC {
 
-	var $q;
-	var $msgtype = 1;
+	private static $instance;
 
-	function __construct() {
+	private $q;
+	private $msgtype = 1;
+
+	private function __construct() {
 		global $__PHPMYAPRSCONF;
-		$this->q = msg_get_queue($__PHPMYAPRSCONF['local']['ipcqueue']);
+		$this->q = msg_get_queue($__PHPMYAPRSCONF['ipcqueue']['key']);
 	}
 
-	function put($packet) {
+	public static function getInstance() {
+		if(!isset(self::$instance)) {
+			$classname = __CLASS__;
+			self::$instance = new $classname();
+		}
+		return self::$instance;
+	}
+
+	public function put($packet) {
 		msg_send($this->q, $this->msgtype, $packet);
 	}
 
-	function get() {
+	public function get() {
 		$msg = '';
 		if(msg_receive($this->q, $this->msgtype, $this->msgtype, 255, $msg)) {
 			return $msg;

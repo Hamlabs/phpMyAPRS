@@ -4,7 +4,6 @@ class aprsObjectDispatcher {
 	static function dispatch($raw) {
 		$split = explode(':', $raw, 2);
 		if(substr($raw, 0, 1) == '#') return false; // Comment lines from APRS-IS are ignored
-		var_dump(substr($split[1], 0, 1));
 		switch(true) {
 			case preg_match('/^;[A-Za-z0-9_\ ]{9}\*/', $split[1]):
 				return aprsObject::dispatch($raw);
