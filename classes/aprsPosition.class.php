@@ -32,6 +32,10 @@ class aprsPosition extends aprsBase {
 	function _parseRawContent($skip=false) {
 		// Sample payload
 		// "!6246.73N/00714.92E#14.0V Molde, Tussen digi"
+	
+		// SJEKK spec side 22-27..
+		// Har regex tatt hoyde for alterntive timestamps?
+
 		parent::_parseRawContent();
 		if(!$skip) {
 			$matches = array();
@@ -43,6 +47,23 @@ class aprsPosition extends aprsBase {
 				$this->setText($matches[4]);
 			}
 		}
+	}
+
+	// Funksjonen er et alternativ til _parseRawContent for a fiske ut SymPos uten regex
+	function _parseSymPos($data) {
+		 
+		$_latNr = substr($data, 0, 6);
+		$_latNS = substr($data, 7, 7);
+		$this->setPosLat = $_latNr . $latNS;
+		unset($_latNr); unset($_latNS);
+
+                $_longNr = substr($data, 9, 16);
+                $_longNS = substr($data, 17, 17);
+                $this->setPosLong = $_longNr . $longNS;
+                unset($_longNr); unset($_longNS);
+
+		$this->symbolTable = substr($data, 8, 8);
+		$this->symbolCode  = substr($data, 18, 18);
 	}
 
 	function _generateRawPayload() {
