@@ -16,6 +16,7 @@ class aprsBase {
 	}
 	
 	function getRawContent() {
+		if(empty($this->raw)) $this->_generateRawContent();
 		return $this->raw;
 	}
 
@@ -76,5 +77,19 @@ class aprsBase {
 
 	function setPayload($contents) {
 		$this->contents = $contents;
+	}
+	
+	function isSendable() {
+		// insert sensible logic here...
+		return true;	
+	}
+	
+	function send() {
+		if($this->isSendable()) {
+			$q = aprsConfig::getQueue();
+			$q->put($this->getRawContent());
+		} else {
+			return false;
+		}
 	}
 }
