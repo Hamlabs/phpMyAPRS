@@ -2,19 +2,26 @@
 
 class aprsIsConnection extends aprsTcpConnection {
 
-	var $callsign = "";
+	var $callsign = null;
 
-	function __construct($host, $port, $callsign, $pass, $filter, $debug=false) {
+	function __construct() {
 		// create connection
-		parent::__construct($host, $port, $debug);
+		parent::__construct(
+			aprsConfig::get('aprsis', 'server'),
+			aprsConfig::get('aprsis', 'port')
+		);
 
-		$this->callsign = $callsign;
+		$this->callsign = aprsConfig::get('aprsis', 'callsign');
 
 		// log in to server
-		$this->login($callsign, $pass, $filter);
+		$this->login(
+			$this->callsign, 
+			aprsConfig::get('aprsis', 'passcode'), 
+			aprsConfig::get('aprsis', 'filter')
+		);
 	}
 
-	function login($callsign, $pass, $filter) {
+	private function login($callsign, $pass, $filter) {
 		$msg = sprintf('user %s pass %s vers phpMyAPRS 0.0.1 filter %s', $callsign, $pass, $filter);
 		$this->puts($msg);
 	}
@@ -24,8 +31,10 @@ class aprsIsConnection extends aprsTcpConnection {
 	}
 
 	function rx() {
+		$d = new aprsObjectDispatcher();
+		
 		while($rx = trim($this->get())) {
-			if($ret = aprsObjectDispatcher::dispatch($rx)) return $ret;
+			if($ret = $d->dispatch($rx)) return $ret;
 		}
 	}
 
@@ -41,3 +50,4 @@ class aprsIsConnection extends aprsTcpConnection {
 	}
 
 }
+

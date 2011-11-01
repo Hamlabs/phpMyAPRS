@@ -1,6 +1,7 @@
 <?php
 
 class aprsCompressedPosition extends aprsPosition {
+	// Highly unfinished non-working skeleton implementation
 	var $comp;
 	
 	function getComp() {

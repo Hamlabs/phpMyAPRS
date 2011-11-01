@@ -1,34 +1,37 @@
 <?php
 
 class aprsObjectDispatcher {
-	static function dispatch($raw) {
+	var $regexp = array();
+	
+	function __construct() {
+		// initialize dispatcher by fetching match rules from all classes
+		foreach($this->getPayloadClasses() as $class) {
+			$this->regexp[$class] = $class::getRegexp();
+		}
+	}
+
+	function getPayloadClasses() {
+		return array(
+			'aprsObject',
+			'aprsPosition',
+			'aprsCompressedPosition',
+		);
+	}
+
+	function dispatch($raw) {
 		$split = explode(':', $raw, 2);
 		if(substr($raw, 0, 1) == '#') return false; // Comment lines from APRS-IS are ignored
-		switch(true) {
-			case preg_match('/^;[A-Za-z0-9_\ ]{9}\*/', $split[1]):
-				return aprsObject::dispatch($raw);
-			case substr($split[1], 0, 1) == '@':
-			case substr($split[1], 0, 1) == '=':
-			case substr($split[1], 0, 1) == '!':
-			case substr($split[1], 0, 1) == '/':
-				return aprsPosition::dispatch($raw);
-			case substr($split[1], 0, 1) == '>':
-				return aprsStatus::dispatch($raw);
-			default:
-				return aprsStatus::dispatch($raw);
+		$matches = array();
+		foreach($this->regexp as $class=>$rule) {
+			if(preg_match($rule, $split[1], $matches)) {
+				//printf("%s: Matched regexp for %s to [%s]\n", __METHOD__, $class, $raw);
+				return $class::dispatch($raw, $matches);
+			}
 		}
+		printf("%s: Cannot dispatch object for packet [%s]\n", __METHOD__, $raw);
+		printf("%s: Last tried was for %s and came up with:", __METHOD__, $class);
+		var_dump($matches);
+		return false;
 	}
 	
-	// Er ikke sikker pÎ hvordan jeg vil lÀse dette...
-	static function old_dispatch($raw) {
-		$match = array();
-		switch(true) {
-			case preg_match('/^[A-Z0-9]+(-[0-9]+)?\>[a-zA-Z0-9\-\*,]+\:/', $raw, $match):
-				var_dump($match);
-				return aprsMessage::dispatch($raw);
-			default:
-				printf("%s: Could not dispatch [%s]\n", __METHOD__, $raw);
-				return false;
-		}
-	}
 }

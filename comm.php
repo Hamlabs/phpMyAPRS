@@ -1,10 +1,10 @@
 <?php
 
-require_once('autoload.php');
+require_once('classes/aprsBootstrap.class.php');
+aprsBootstrap::boot('config.ini');
 
 // Set up APRS-IS connection
-$ac = $__PHPMYAPRSCONF['aprsis'];
-$aprs = new aprsIsConnection($ac['server'], isset($ac['port'])?$ac['port']:'14580', $ac['callsign'], $ac['passcode'], $ac['filter']);
+$aprs = new aprsIsConnection();
 
 if(pcntl_fork()) {
 	echo "RX process going!\n";

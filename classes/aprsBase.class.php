@@ -10,9 +10,9 @@ class aprsBase {
 	
 	}
 	
-	function setRawContent($raw) {
+	function setRawContent($raw, $matches=null) {
 		$this->raw = $raw;
-		$this->_parseRawContent();
+		$this->_parseRawContent(false, $matches);
 	}
 	
 	function getRawContent() {

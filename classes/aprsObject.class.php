@@ -11,21 +11,29 @@ class aprsObject extends aprsPosition {
 		$this->name = $name;
 	}
 
-	function _parseRawContent($skip=false) {
-		// Sample payload
-		// ";LA7F     *071835z6715.47N/01522.80E-LA7F Clubstation Fauskegruppen av NRRL"
+	static function getRegexp() {
+		return '/^;(.{9})\*(([0-9]{6}[hz])?([0-9]{4}\.[0-9]{2}[NS].[0-9]{5}\.[0-9]{2}[EW].))(.*)$/';
+	}
+
+	function _parseRawContent($skip=false, $matches=null) {
 		parent::_parseRawContent(true);
-		if(!$skip) { 
-			$matches = array();
-			if(!preg_match('/^;(.{9})\*(([0-9]{6}[hz])?([0-9]{4}\.[0-9]{2}[NS].[0-9]{5}\.[0-9]{2}[EW].))(.*)$/', $this->getPayload(), $matches)) {
-				printf("%s: Could not parse supposed object [%s]\n", __METHOD__, $this->getPayload());
-			} else {
+		if(!$skip) {
+			if(empty($matches)) {
+				$matches = array();
+				if(!preg_match(self::getRegexp(), $this->getPayload(), $matches)) {
+					printf("%s: Weird - Regexp does not match [%s]\n", __METHOD__, $this->getPayload());
+					return;
+				}
+			}
+			$this->_setFields($matches);
+		}
+	}
+
+	function _setFields($matches) {
 				$this->setName(trim($matches[1]));
 				$this->setTime($matches[3]);
 				$this->setSympos($matches[4]);
 				$this->setText($matches[5]);
-			}
-		}
 	}
 
 	function _generateRawPayload() {
