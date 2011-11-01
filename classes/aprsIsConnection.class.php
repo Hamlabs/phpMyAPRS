@@ -21,13 +21,14 @@ class aprsIsConnection extends aprsTcpConnection {
 		);
 	}
 
-	private function login($callsign, $pass, $filter) {
-		$msg = sprintf('user %s pass %s vers phpMyAPRS 0.0.1 filter %s', $callsign, $pass, $filter);
-		$this->puts($msg);
+	private function login($callsign, $pass, $filter='') {
+		$msg = sprintf('user %s pass %s vers %s', $callsign, $pass, aprsConfig::getVersion());
+		if(!empty($filter)) $msg .= sprintf(' filter %s', $filter);
+		$this->tx($msg);
 	}
 
-	function tx($msg, $dest='APZ001') {
-		$this->puts(sprintf("%s>%s:%s", $this->callsign, $dest, $msg));
+	function tx($msg) {
+		$this->puts($msg);
 	}
 
 	function rx() {
@@ -44,8 +45,17 @@ class aprsIsConnection extends aprsTcpConnection {
 
 		while($msg = $queue->get()) {
 			echo "TX: $msg\n";
-			$this->puts($msg);
+			$this->tx($msg);
 			usleep($txwait*1000);
+		}
+	}
+
+	function forkTransmitSpooler() {
+		if(pcntl_fork()) {
+			return true;
+		} else {
+			echo "TX process going!\n";
+			$this->executeTransmitSpooler();
 		}
 	}
 

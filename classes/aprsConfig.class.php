@@ -23,4 +23,8 @@ class aprsConfig {
 		return $classname::getInstance();
 	}
 
+	static function getVersion() {
+		return 'phpMyAPRS 0.0.1';
+	}
+
 }
