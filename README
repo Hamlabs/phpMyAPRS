@@ -1,6 +1,6 @@
 phpMyAPRS
 
-Copyright (c) hamlabs.no <phpMyAPRS@hamlabs.no>
+Copyright (c) Morten Johansen <morten@bzzt.no> and contributors.
 
 A PHP framework for communicating with the APRS-IS network.
 This framework is released for use under the GPLv3 license as attached.
@@ -16,7 +16,12 @@ objects.
 The goal is to have a queue for outgoing messages, and a way to set up
 rules and code to do what you want with incoming packets of all kinds. 
 
-Best of luck :)
+Contributors:
 
-LA1FTA Morten & LA6TRA Hans
+	LA6TRA Hans	aprsSymbol
+			aprsSymPos
+
+Good luck :)
+
+LA1FTA Morten
 

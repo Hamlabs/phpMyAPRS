@@ -386,10 +386,9 @@ class aprsSymbol {
   }
 
 
-	static function getOverlay($symbol, $overlay) {
-		
-      $bytes = str_split($symbol);
-      return $overlay.$bytes[1];
+	static function overlay($symbol, $overlay) {
+		// Strings can be treated directly as arrays
+		return $overlay[0].$symbol[1];
 	}
 	
 	
@@ -407,30 +406,16 @@ class aprsSymbol {
       }
     }
 	}
-	
-
-	static function getBytes($symbol) {
-
-    /*
-    if(!empty($symbol)) {
-      $name =  strtoupper($symbol);
-
-      foreach(self::$aprsSymbolTable as $tableByte => $TableData) {
-        $iconByte = array_search($name, $tableData);
-        if(!empty($iconByte)) {
-          return $tableByte.$iconByte;
-        }
-      }
-    }
-	*/
-  return constant('self::'.$symbol);
-  }
 
 }
 
-/*
-Ex.
-echo aprsSymbol::getOverlay(aprsSymbol::TORNADO, "3"); -> "3t"
-echo aprsSymbol::getName("\t"); -> "TORNADO"
-echo aprsSymbol::getBytes("TORNADO"); -> "\t"
+/*	Usage examples:
+
+	// Simple symbol lookup
+	echo aprsSymbol::TORNADO; -> '\t'
+
+	// Symbol overlay
+	echo aprsSymbol::overlay(aprsSymbol::TORNADO, '3'); -> '3t'
+
+	Interface and functionality for ::getName() not yet defined.
 */
