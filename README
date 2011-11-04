@@ -10,7 +10,7 @@ The latest version can be found on https://github.com/Hamlabs/phpMyAPRS
 To get started copy the config-dist.ini to config.ini and configure
 your callsign and other preferences.
 
-The command "php comm.php" will start a process that forks into a read
+The command "php examples/comm.php" will start a process that forks into a read
 and a write process. phpMyAPRS will parse all incoming packets into
 objects.
 The goal is to have a queue for outgoing messages, and a way to set up
