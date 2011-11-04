@@ -5,6 +5,9 @@
 class aprsBeaconStore {
 	// This class uses the specified folder to store files for all stored beacons, and filesystem timestamps to determine when things are due for beaconing.
 	var $path;
+
+	const ALL = false;
+	const ONLY_DUE = true;
 	
 	function __construct($path) {
 		$this->path = $path;
@@ -19,6 +22,10 @@ class aprsBeaconStore {
 		return file_put_contents($this->getFilenameForId($beacon->getId()), serialize($beacon));
 	}
 	
+	public function deleteBeacon(aprsBeacon $beacon) {
+		return unlink($this->getFilenameForId($beacon->getId()));
+	}
+	/* This bit of code is not needed, but kept just in case
 	public function touchBeacon(aprsBeacon $beacon, $time=null, $atime=null) {
 		return $this->touchBeaconId($beacon->getId(), $time=null, $atime=null);
 	}
@@ -26,6 +33,7 @@ class aprsBeaconStore {
 	public function touchBeaconId($beacon_id, $time=null, $atime=null) {
 		return touch($this->getFilenameForId($beacon_id), $time, $atime);
 	}
+	*/
 
 	public function getBeacon($beacon_id) {
 		return $this->getBeaconFromFile($this->getFilenameForId($beacon_id));
@@ -35,15 +43,14 @@ class aprsBeaconStore {
 		return unserialize(file_get_contents($file));
 	}
 	
-	public function getBeacons($changed_after=null, $accessed_before=null) {
+	public function getBeacons($only_due=false) {
 		$ret = array();
 		$dir = opendir($this->getPath());
 		while($f = readdir($dir)) {
 			if(!preg_match(sprintf('/^%s/', $this->getFilenamePrefix()), $f)) continue;
 			$file = sprintf('%s/%s', $this->getPath(), $f);
-			$stat = stat($file);
-			// TODO: Implement atime and mtime filtering here...
-			$ret[] = $this->getBeaconFromFile($file);
+			$beacon = $this->getBeaconFromFile($file);
+			if(!$only_due || ($only_due && $beacon->isDue())) $ret[] = $beacon;
 		}
 		closedir($dir);
 		return $ret;
