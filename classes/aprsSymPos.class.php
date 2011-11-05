@@ -93,7 +93,7 @@ class aprsSymPos {
       $this->symbolTable = substr($data, 8, 8);
       $this->symbolCode  = substr($data, 18, 18);
 		} else {
-      echo "This fuck is fucking fucked!";
+      # goto compressed version and try there ...
 		}
 	}
 
