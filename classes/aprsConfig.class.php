@@ -23,8 +23,18 @@ class aprsConfig {
 		return $classname::getInstance();
 	}
 
+	static function getVersionArray() {
+		return array(0,0,1);
+	}
+
 	static function getVersion() {
-		return 'phpMyAPRS 0.0.1';
+		$v = self::getVersionArray();
+		return sprintf('phpMyAPRS %d.%d.%d', $v[0], $v[1], $v[2]);
+	}
+
+	static function getAX25dst() {
+		$v = self::getVersionArray();
+		return sprintf('APZ%d%d%d', $v[0], $v[1], $v[2]);
 	}
 
 }

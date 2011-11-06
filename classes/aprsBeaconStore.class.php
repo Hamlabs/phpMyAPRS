@@ -36,7 +36,12 @@ class aprsBeaconStore {
 	*/
 
 	public function getBeacon($beacon_id) {
-		return $this->getBeaconFromFile($this->getFilenameForId($beacon_id));
+		$filename = $this->getFilenameForId($beacon_id);
+		if(file_exists($filename)) {
+			return $this->getBeaconFromFile($filename);
+		} else {
+			return false;
+		}
 	}
 
 	public function getBeaconFromFile($file) {
