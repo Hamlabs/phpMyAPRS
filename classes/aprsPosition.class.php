@@ -1,8 +1,19 @@
 <?php
 
+/*
+aprsPosition package contains the following elements:
+
+*/
+
 class aprsPosition extends aprsBase {
 	var $time;
+	var $symbol;
+	var $geopos;
 	var $sympos;
+	var $range;
+	var $altitude;
+	var $course;
+	var $speed;
 	var $text;
 
 	function getTime() {
@@ -13,12 +24,53 @@ class aprsPosition extends aprsBase {
 		$this->time = $time;
 	}
 
+	function getSymbol() {
+		return $this->symbol;
+	}
+	function setSymbol($symbol) {
+		$this->symbol = $symbol;
+	}
+
+	function getGeoPos() {
+		return $this->geopos;
+	}
+	function setGeoPos($geopos) {
+		$this->geopos = $geopos;
+	}
+
 	function getSympos() {
 		return $this->sympos;
 	}
-
 	function setSympos($sympos) {
 		$this->sympos = $sympos;
+	}
+
+	function getRange() {
+		return $this->range;
+	}
+	function setRange($range) {
+		$this->range = $range;
+	}
+
+	function getAltitude() {
+		return $this->altitude;
+	}
+	function setAltitude($altitude) {
+		$this->altitude = $altitude;
+	}
+
+	function getCourse() {
+		return $this->course;
+	}
+	function setCourse($course) {
+		$this->course = $course;
+	}
+
+	function getSpeed() {
+		return $this->speed;
+	}
+	function setSpeed($speed) {
+		$this->speed = $speed;
 	}
 
 	function getText() {

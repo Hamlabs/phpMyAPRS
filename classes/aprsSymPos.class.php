@@ -1,73 +1,31 @@
 <?php
 
 class aprsSymPos {
-	var $time;
+	var $symbol;
 	var $sympos;
 	var $text;
 
+
 	function getSymbol() {
-    if( !empty($this->symbolTable) && !empty($this->symbolCode) ) {
-      return getSymbolTable().getSymbolCode();
-		} else {
-      return false;
-		}
+    return $this->symbol;
 	}
-
 	function setSymbol($data) {
-		setSymbolTable($data[0]);
-		setSymbolCode($data[1]);
+		$this->symbol = $data;
 	}
 
-
-	function getSymbolTable() {
-    return $this->symbolTable;
-  }
-
-  function setSymbolTable($data) {
-    $this->symbolTable = $data;
-  }
-
-  function getSymbolCode() 
-    return $this->symbolCode;
-  }
-
-  function setSymbolCode($data) {
-    $this->symbolCode = $data;
-  }
-
- /*
-	function getLatLong() {
-    return $this->latLong;
+	function getGeoPos() {
+    return $this->geopos;
 	}
-
-  function setLatLong($data) {
-    $this->latLong = $data;
+  function setGeoPos($data) {
+    $this->geopos = $data;
   }
- */
- 
-  function getLatitude() {
-    return $this->latitude;
-  }
-
-  function setLatitude($data) {
-    $this->latitude = $data;
-  }
-
-	function getLongitude() {
-    return $this->longitude;
-  }
-
-  function setLongitude($data) {
-    $this->longitude = $data;
-  }
-
 
   function getSymPos() {
     _createSymPos();
-    return $this->symPos;
+    return $this->sympos;
   }
-
   function setSymPos($data) {
+    $this->sympos = $data;
     _parseSymPos($data);
   }
 
@@ -100,7 +58,7 @@ class aprsSymPos {
 
 	function _createSymPos() {
 		
-		$this->symPos = $this->latDeg . $this->latMin . "." .  $this->latMmm . $this->latNS . $this->symTable \
+		$this->sympos = $this->latDeg . $this->latMin . "." .  $this->latMmm . $this->latNS . $this->symTable \
     $this->longDeg.$this->longMin . "." . $this->longMmm . $this->longEW. $this->symCode ;
 
 		return true;		
