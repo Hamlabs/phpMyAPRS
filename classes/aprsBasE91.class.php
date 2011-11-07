@@ -215,29 +215,3 @@ class aprsBasE91 {
 
 
 }
-
-include("aprsGeoConvert.class.php");
-
-/*
-$data = aprsBasE91::decode("/5L!!<*e7>7P[");
-*/
-$data = array(
-          "geopos"    => array(
-                          "lat"  => 49.50,
-                          "long" => -72.75
-          ),
-          "symbol"    => "/>",
-          "range"     => 0,
-          "altitude"  => 0,
-          "course"    => 88,
-          "speed"     => 36.2,
-          "tByte"     => array(
-                          "origin" => "010",
-                          "source" => "11",
-                          "fix"    => "1"
-          )
-  
-);
-echo "\r\n\r\n";
-echo "Resultat:\t". aprsBasE91::encode($data);
-echo "\r\n\r\n";
