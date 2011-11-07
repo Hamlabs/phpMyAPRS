@@ -13,6 +13,6 @@ $beacon->setInterval(1);
 
 foreach($bs->getBeacons(aprsBeaconStore::ONLY_DUE) as $beacon) {
 	var_dump($beacon);
-	$bs->deleteBeacon($beacon);
+	//$bs->deleteBeacon($beacon);
 }
 
