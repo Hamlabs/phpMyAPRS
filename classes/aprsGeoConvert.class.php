@@ -3,8 +3,9 @@
 class aprsGeoConvert {
 	// This class assumes default format: 'decimal'
 	static function LonToAprs($decimal) {
-		$p = explode('.', $decimal);
-		return sprintf(''/*INSERT MAGIC HERE*/);
+		$a = explode('.', $decimal);
+		$b = self::decimalsToHexagesimalParts($a[1]);
+		return sprintf('%02d%02d.%02d', $a[0], $b[0], $b[1]);
 	}
 
 	// Everything below here is unsupported
@@ -37,8 +38,19 @@ class aprsGeoConvert {
   }
 
 
-
 	##### Convert DDD into DMM and DMS
+
+	private function decimalsToHexagesimal($d) {
+		return $d * 0.6;
+	}
+
+	private function decimalsToHexagesimalParts($d) {
+		$tmp = self::decimalsToHexagesimal($d);
+		$r[] = substr(0,2,$tmp);
+		$r[] = substr(2,2,$tmp);
+		return $r;
+	}
+
 	private function DDD2LL($LL, $to) {
 
 			// To DMM
