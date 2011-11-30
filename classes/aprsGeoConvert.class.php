@@ -1,7 +1,13 @@
 <?php
 
 class aprsGeoConvert {
+	// This class assumes default format: 'decimal'
+	static function LonToAprs($decimal) {
+		$p = explode('.', $decimal);
+		return sprintf(''/*INSERT MAGIC HERE*/);
+	}
 
+	// Everything below here is unsupported
   static function ddd2dmm($ddd) {
     return self::DDD2LL($ddd, "DMM");
   }

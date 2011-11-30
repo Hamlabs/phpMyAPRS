@@ -1,0 +1,29 @@
+phpMyAPRS Roadmap
+=================
+
+The project uses odd minor numbers for development phases.
+Branches with even minor versions are considered stable and only bugfixes will be added to them.
+
+2011-07-01	* Project start
+		Version 0.0.1
+
+2011-12-01	* Software architecture and first project milestones defined
+		* Concentrate on completing support for all APRS data types
+		* Basic documentation
+		Version 0.7.0
+
+
+*** YOU ARE HERE ***
+
+
+?		* Branch off version 0.8.0 for stable use
+		* Start development of event driven packet handling engine
+		* More comprehensive documentation and examples
+		Version 0.9.0
+
+?		* Branch off version 1.0.0 for stable use
+		* End of currently planned project goals
+
+		* Implement unknown features as needed
+		* KISS Connectivity for direct RF work?
+

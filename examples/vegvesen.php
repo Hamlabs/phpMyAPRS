@@ -8,6 +8,7 @@ $bs = new aprsBeaconStore('/tmp/aprsbeacon');
 
 class vegvesen {
 	static function getMessagesForCounty($county) {
+		global $xml;
 		// Make 3 attempts at fetching the XML. if it doesn't work, die.
 		for($c = 0; $c <= 2; $c ++) {
 			$xml = file_get_contents('http://www.vegvesen.no/trafikk/xml/search.xml?searchFocus.counties='.$county);
@@ -66,7 +67,7 @@ class vegvesen {
 	    	$obj->setName(vegvesen::beaconName($message));
     		$obj->setText(vegvesen::beaconText($message));
     		$obj->setTime(aprsTime::now());
-		$obj->setPosition(array((float)$message->coordinates->startPoint->xCoord, (float)$message->coordinates->startPoint->yCoord));
+		$obj->setGeoPos(array((float)$message->coordinates->startPoint->xCoord, (float)$message->coordinates->startPoint->yCoord));
     		$beacon->setRevision((int)$message->version);
 	}
 }
@@ -102,13 +103,16 @@ if($messages = vegvesen::getMessagesForCounty(18)) {
 		}
 	}
 	
+	$c = 0;
 	foreach($bs->getBeacons() as $beacon) {
 		if(!in_array($beacon->getId(), $active)) {
 			echo "DELETE BEACON\n";
 			// TODO: This really should have a way to TX the removal of the object as well...
 			$bs->deleteBeacon($beacon);
+			$c++;
 		}
 	}
+	if($c > 1) var_dump($xml);
 } else {
 	echo "Could not retrieve messages. Doing nothing...\n";
 }

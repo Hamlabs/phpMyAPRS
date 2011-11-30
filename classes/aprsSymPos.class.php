@@ -7,29 +7,34 @@ class aprsSymPos {
 
 
 	function getSymbol() {
-    return $this->symbol;
+		return $this->symbol;
 	}
+
 	function setSymbol($data) {
 		$this->symbol = $data;
 	}
 
 	function getGeoPos() {
-    return $this->geopos;
+	    return $this->geopos;
 	}
-  function setGeoPos($data) {
-    $this->geopos = $data;
-  }
+	
+	function setGeoPos($data) {
+		$this->geopos = $data;
+	}
 
-  function getSymPos() {
-    _createSymPos();
-    return $this->sympos;
-  }
-  function setSymPos($data) {
-    $this->sympos = $data;
-    _parseSymPos($data);
-  }
+	function getSymPos() {
+		_createSymPos();
+		return $this->sympos;
+	}
 
+	function setSymPos($data) {
+    	$this->sympos = $data;
+		_parseSymPos($data);
+	}
 
+	static function getRaw($symbol, $position) {
+		
+	}
 
 	// Disect sympos into smaler chunks
 	// SymPos eks. from _praseRawData: 6246.73N/00714.92E#
@@ -57,10 +62,8 @@ class aprsSymPos {
 
 
 	function _createSymPos() {
-		
 		$this->sympos = $this->latDeg . $this->latMin . "." .  $this->latMmm . $this->latNS . $this->symTable \
-    $this->longDeg.$this->longMin . "." . $this->longMmm . $this->longEW. $this->symCode ;
-
+		$this->longDeg.$this->longMin . "." . $this->longMmm . $this->longEW. $this->symCode ;
 		return true;		
 	}
 

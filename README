@@ -12,14 +12,13 @@ your callsign and other preferences.
 
 The command "php examples/comm.php" will start a process that forks into a read
 and a write process. phpMyAPRS will parse all incoming packets into
-objects.
-The goal is to have a queue for outgoing messages, and a way to set up
-rules and code to do what you want with incoming packets of all kinds. 
+objects. Other useful examples can be found in the same folder.
+
+Also have a look in the doc folder for further information.
 
 Contributors:
 
-	LA6TRA Hans	aprsSymbol
-			aprsSymPos
+	LA6TRA Hans	Work on aprsSymbol, aprsSymPos, and more..
 
 Good luck :)
 

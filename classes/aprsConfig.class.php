@@ -24,7 +24,7 @@ class aprsConfig {
 	}
 
 	static function getVersionArray() {
-		return array(0,0,1);
+		return array(0,7,0);
 	}
 
 	static function getVersion() {
