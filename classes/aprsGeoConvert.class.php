@@ -8,7 +8,26 @@ class aprsGeoConvert {
 		return sprintf('%02d%02d.%02d', $a[0], $b[0], $b[1]);
 	}
 
-	// Everything below here is unsupported
+	static function LatToAprs($decimal) {
+		$a = explode('.', $decimal);
+		$b = self::decimalsToHexagesimalParts($a[1]);
+		return sprintf('%03d%02d.%02d', $a[0], $b[0], $b[1]);
+	}
+
+	// Private parts ;-)
+
+	private function decimalsToHexagesimal($d) {
+		return $d * 0.6;
+	}
+
+	private function decimalsToHexagesimalParts($d) {
+		$tmp = self::decimalsToHexagesimal($d);
+		$r[] = substr(0,2,$tmp);
+		$r[] = substr(2,2,$tmp);
+		return $r;
+	}
+
+	/**** Everything below here is unsupported ****/
   static function ddd2dmm($ddd) {
     return self::DDD2LL($ddd, "DMM");
   }
@@ -40,16 +59,7 @@ class aprsGeoConvert {
 
 	##### Convert DDD into DMM and DMS
 
-	private function decimalsToHexagesimal($d) {
-		return $d * 0.6;
-	}
 
-	private function decimalsToHexagesimalParts($d) {
-		$tmp = self::decimalsToHexagesimal($d);
-		$r[] = substr(0,2,$tmp);
-		$r[] = substr(2,2,$tmp);
-		return $r;
-	}
 
 	private function DDD2LL($LL, $to) {
 
