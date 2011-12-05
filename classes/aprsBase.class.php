@@ -88,6 +88,7 @@ class aprsBase {
 		if($this->isSendable()) {
 			$q = aprsConfig::getQueue();
 			$q->put($this->getRawContent());
+			return true;
 		} else {
 			return false;
 		}

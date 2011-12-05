@@ -114,5 +114,16 @@ class aprsBeacon {
 		
 		// TODO: This method could also in the future fire a registered callback when a beacon is deprecated.
 	}
+	
+	function send() {
+		// Dig up the packet, ask it to send itself, and register the event if successful.
+		$p = $this->getPacket();
+		if($p->send()) {
+			$this->registerTx();
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 

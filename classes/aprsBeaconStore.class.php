@@ -3,9 +3,11 @@
 // For now this class IS the interface definition :)
 
 class aprsBeaconStore {
+
+	private static $instance;
+
 	// This class uses the specified folder to store files for all stored beacons, and filesystem timestamps to determine when things are due for beaconing.
 	var $path;
-
 	const ALL = false;
 	const ONLY_DUE = true;
 	
@@ -16,6 +18,13 @@ class aprsBeaconStore {
 		} else {
 			mkdir($path);
 		}
+	}
+
+	static function getInstance() {
+		if(!$this->instance) {
+			new aprsBeaconStore(aprsConfig::get('beaconstore', 'path'));
+		}
+		return $this->instance;
 	}
 
 	public function storeBeacon(aprsBeacon $beacon) {

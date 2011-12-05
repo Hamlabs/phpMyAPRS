@@ -49,6 +49,19 @@ class aprsIsConnection extends aprsTcpConnection {
 			usleep($txwait*1000);
 		}
 	}
+	
+	function executeBeaconSpooler() {
+		$beaconstore = aprsBeaconStore::getInstance();
+		while(true) {
+			sleep(1);
+			foreach($beaconstore->getBeacons(true) as $beacon) {
+				if($beacon->send()) {
+					// If the send() method returns true, it needs to be saved
+					$beaconstore->storeBeacon($beacon);
+				}
+			}
+		}
+	}
 
 	function forkTransmitSpooler() {
 		if(pcntl_fork()) {
@@ -56,6 +69,15 @@ class aprsIsConnection extends aprsTcpConnection {
 		} else {
 			echo "TX process going!\n";
 			$this->executeTransmitSpooler();
+		}
+	}
+
+	function forkBeaconSpooler() {
+		if(pcntl_fork()) {
+			return true;
+		} else {
+			echo "BeaconSpooler process going!\n";
+			$this->executeBeaconSpooler();
 		}
 	}
 
