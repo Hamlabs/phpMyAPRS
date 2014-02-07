@@ -6,6 +6,7 @@ class aprsBeacon {
 	var $packet;
 	var $last_beacon = 0;
 	var $interval = 0;
+	var $max_interval = 1800;
 	var $tx_count = 0;
 	var $max_tx_count = 0;
 	var $exp_backoff = false;
@@ -56,6 +57,14 @@ class aprsBeacon {
 		return $this->interval;
 	}
 
+        function setMaxInterval($interval) {
+                $this->max_interval = $interval;
+        }
+
+        function getMaxInterval() {
+                return $this->max_interval;
+        }
+
 	function setTxCount($count) {
 		$this->tx_count = $count;
 	}
@@ -80,14 +89,17 @@ class aprsBeacon {
 		return $this->exp_backoff;
 	}
 
-	function putExponentialBackoff($bool) {
+	function setExponentialBackoff($bool) {
 		$this->exp_backoff = $bool;
 	}
 
+	function timeToNextBeacon() {
+		return ($this->getLastBeacon() + $this->getInterval()) - time();
+	}
 	// Returns true or false.
-	// True if "interval" time has gone since last beacon.
+	// True if "interval" seconds has gone since last beacon.
 	function isDue() {
-		if( $this->getLastBeacon() < (time() - $this->interval)) {
+		if($this->timeToNextBeacon() < 0) {
 			if($this->getMaxTxCount()) {
 				return $this->getTxCount() < $this->getMaxTxCount() ? true : false;
 			} else {
@@ -110,6 +122,10 @@ class aprsBeacon {
 		// Increate interval if exponential backoff beacon
 		if($this->getExponentialBackoff()) {
 			$this->setInterval($this->getInterval() * 2);
+			if($this->getInterval() >= $this->getMaxInterval()) {
+				$this->setInterval($this->getMaxInterval());
+				$this->setExponentialBackoff(false);
+			}
 		}
 		
 		// TODO: This method could also in the future fire a registered callback when a beacon is deprecated.

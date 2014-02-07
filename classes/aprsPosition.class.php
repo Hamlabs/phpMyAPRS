@@ -40,7 +40,7 @@ class aprsPosition extends aprsBase {
 	}
 
 	function getSympos() {
-		return aprsSymPos::getRaw($this->getSymbol(), $this->getPosition());
+		return aprsSymPos::getRaw($this->getSymbol(), $this->getGeoPos());
 	}
 
 	//function setSympos($sympos) {

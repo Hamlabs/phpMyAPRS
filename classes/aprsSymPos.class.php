@@ -32,8 +32,51 @@ class aprsSymPos {
 		_parseSymPos($data);
 	}
 
-	static function getRaw($symbol, $position) {
-		
+	static function getSymbolTable($symbol) {
+		return substr($symbol,0,1);
+	}
+
+	static function getSymbolCode($symbol) {
+		return substr($symbol,1,1);
+	}
+
+	static function getAbsLatDegrees($geopos) {
+		return floor(abs($geopos[0]));
+	}
+
+	static function getLatMinutesDec($geopos) {
+		$dec = abs($geopos[0]) - self::getAbsLatDegrees($geopos);
+		return $dec * 60;
+	}
+
+	static function getLatCardinal($geopos) {
+		return $geopos[0] < 0 ? 'S' : 'N';
+	}
+
+        static function getAbsLonDegrees($geopos) {
+                return floor(abs($geopos[1]));
+        }
+
+        static function getLonMinutesDec($geopos) {
+                $dec = abs($geopos[1]) - self::getAbsLonDegrees($geopos);
+                return $dec * 60;
+        }
+
+        static function getLonCardinal($geopos) {
+                return $geopos[1] < 0 ? 'W' : 'E';
+        }
+
+	static function getRaw($symbol, $geopos) {
+		return sprintf('%02d%05.2f%1s%1s%03d%05.2f%1s%1s',
+			self::getAbsLatDegrees($geopos),
+			self::getLatMinutesDec($geopos),
+			self::getLatCardinal($geopos),
+			self::getSymbolTable($symbol),
+			self::getAbsLonDegrees($geopos),
+			self::getLonMinutesDec($geopos),
+			self::getLonCardinal($geopos),
+			self::getSymbolCode($symbol)
+		);
 	}
 
 	// Disect sympos into smaler chunks
@@ -62,7 +105,7 @@ class aprsSymPos {
 
 
 	function _createSymPos() {
-		$this->sympos = $this->latDeg . $this->latMin . "." .  $this->latMmm . $this->latNS . $this->symTable \
+		$this->sympos = $this->latDeg . $this->latMin . "." .  $this->latMmm . $this->latNS . $this->symTable .
 		$this->longDeg.$this->longMin . "." . $this->longMmm . $this->longEW. $this->symCode ;
 		return true;		
 	}

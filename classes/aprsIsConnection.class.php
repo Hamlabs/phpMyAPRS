@@ -51,10 +51,11 @@ class aprsIsConnection extends aprsTcpConnection {
 	}
 	
 	function executeBeaconSpooler() {
-		$beaconstore = aprsBeaconStore::getInstance();
+		$beaconstore = new aprsBeaconStore('/tmp/aprsbeacon');
 		while(true) {
 			sleep(1);
-			foreach($beaconstore->getBeacons(true) as $beacon) {
+			foreach($beaconstore->getBeacons(aprsBeaconStore::ONLY_DUE) as $beacon) {
+				printf("[%s]\t%s\n", $beacon->isDue() ? '*' : ' ', $beacon->getPacket());
 				if($beacon->send()) {
 					// If the send() method returns true, it needs to be saved
 					$beaconstore->storeBeacon($beacon);

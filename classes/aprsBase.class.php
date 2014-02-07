@@ -4,10 +4,11 @@ class aprsBase {
 	var $raw;
 	var $sender;
 	var $path = array();
+	var $destination;
 	var $contents;
 	
 	function __construct() {
-	
+		$this->setDestination(aprsConfig::getAX25dst());
 	}
 	
 	function setRawContent($raw, $matches=null) {
@@ -16,7 +17,8 @@ class aprsBase {
 	}
 	
 	function getRawContent() {
-		if(empty($this->raw)) $this->_generateRawContent();
+		//if(empty($this->raw)) 
+		$this->_generateRawContent();
 		return $this->raw;
 	}
 
@@ -37,7 +39,7 @@ class aprsBase {
 	}
 
 	function _generateRawHeader() {
-		return sprintf('%s>%s', $this->sender, implode(',', $this->path));
+		return sprintf('%s>%s,%s', $this->sender, $this->destination, implode(',', $this->path));
 	}
 
 	function _generateRawPayload() {
@@ -56,7 +58,7 @@ class aprsBase {
 	}
 
 	function setSender($sender) {
-		$this->sender = sender;	
+		$this->sender = $sender;	
 	}
 
 	function getPath() {
@@ -65,6 +67,14 @@ class aprsBase {
 
 	function setPath(array $path) {
 		$this->path = $path;
+	}
+
+	function getDestination() {
+		return $this->destination;
+	}
+
+	function setDestination($destination) {
+		$this->destination = $destination;
 	}
 
 	function addPathHop($hop) {
@@ -85,8 +95,11 @@ class aprsBase {
 	}
 	
 	function send() {
+		$this->setSender(aprsConfig::get('aprsis', 'callsign'));
+		$this->setPath(array('TCPIP*'));
 		if($this->isSendable()) {
 			$q = aprsConfig::getQueue();
+			echo "TO QUEUE: ".$this->getRawContent()."\n";
 			$q->put($this->getRawContent());
 			return true;
 		} else {

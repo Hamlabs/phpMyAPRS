@@ -1,24 +1,48 @@
 <?php
 
+ini_set('display_errors', 'on');
 require_once('classes/aprsBootstrap.class.php');
 aprsBootstrap::boot('config.ini');
 date_default_timezone_set('Europe/Oslo');
+ob_implicit_flush();
+
+$ARGV = $_SERVER['argv'];
+
+$VERBOSE = (isset($ARGV[1]) && $ARGV[1] == '-v') ? true : false;
 
 $bs = new aprsBeaconStore('/tmp/aprsbeacon');
 
 class vegvesen {
+	static function getMessagesForCounties($counties) {
+		$messages = array();
+		foreach($counties as $county) {
+			if($county_msg = self::getMessagesForCounty($county)) {
+				foreach($county_msg as $msg) {
+					$messages[] = $msg;
+				}
+			}
+			
+		}
+		return $messages;
+	}
+
 	static function getMessagesForCounty($county) {
 		global $xml;
 		// Make 3 attempts at fetching the XML. if it doesn't work, die.
 		for($c = 0; $c <= 2; $c ++) {
-			$xml = file_get_contents('http://www.vegvesen.no/trafikk/xml/search.xml?searchFocus.counties='.$county);
+			$xml = @file_get_contents('http://www.vegvesen.no/trafikk/xml/search.xml?searchFocus.counties='.$county);
 			if(!$xml) {
-				echo "Could not connect. Trying again in a few seconds...\n";
+				//echo "Could not fetch URL. Trying again in a few seconds...\n";
 				sleep(5);
 				continue; 
 			};
 			if($xml) {
-				$z = new SimpleXMLElement($xml);
+				try {
+					$z = new SimpleXMLElement($xml);
+				} catch (Exception $e) {
+					echo "Exception parsing XML... Bailing out...\n";
+					return false;
+				}
 				return $z->{'result-array'}->result->messages->message;
 			}
 		}
@@ -32,7 +56,8 @@ class vegvesen {
 	}
 	
 	static function shorten($ingress) {
-		echo "SHORTEN: $ingress\n";
+		if(strlen($ingress) < 30) return $ingress;
+		//echo "SHORTEN: $ingress\n";
 		$ret = array();
 		$matches = array();
 		if(preg_match('/på grunn av ([\wæøåÆØÅ]+(\s+[\wæøåÆØÅ]+)?)/', $ingress, $matches)){
@@ -44,7 +69,7 @@ class vegvesen {
 				$ret[] = sprintf('%s-%s %02d-%02d', $matches[1], $matches[2], $matches[3], $matches[4]);
 		}
 		if(!count($ret)) {
-			echo 'COULD NOT SHORTEN: '.$ingress."\n";
+			//echo 'COULD NOT SHORTEN: '.$ingress."\n";
 			return $ingress;
 		}
 		return implode(' ', $ret);
@@ -54,8 +79,12 @@ class vegvesen {
 		return preg_replace('/\s+/','', $string);
 	}
 
+	static function printable($string) {
+		return @iconv('UTF-8', 'ASCII//IGNORE//TRANSLIT', $string);
+	}
+
 	static function beaconName($message) {
-		return substr(vegvesen::unspace((string)$message->roadType.(string)$message->roadNumber.(string)$message->heading), 0, 9);	
+		return substr(vegvesen::unspace((string)$message->roadType.(string)$message->roadNumber.self::printable($message->heading)), 0, 9);	
 	}
 
 	static function beaconText($message) {
@@ -67,53 +96,68 @@ class vegvesen {
 	    	$obj->setName(vegvesen::beaconName($message));
     		$obj->setText(vegvesen::beaconText($message));
     		$obj->setTime(aprsTime::now());
-		$obj->setGeoPos(array((float)$message->coordinates->startPoint->xCoord, (float)$message->coordinates->startPoint->yCoord));
-    		$beacon->setRevision((int)$message->version);
+		$obj->setGeoPos(array((float)$message->coordinates->startPoint->yCoord, (float)$message->coordinates->startPoint->xCoord));
+		$obj->setSymbol('\j');  
+  		$beacon->setRevision((int)$message->version);
 	}
 }
 
 $active = array();
 
-if($messages = vegvesen::getMessagesForCounty(18)) {
+//if($messages = vegvesen::getMessagesForCounty(18)) {
+if($messages = vegvesen::getMessagesForCounties(array(18,19))) {
+	$n_msg = count($messages);
+	$delay = 300 / ($n_msg + 1);
+	//var_dump($delay); die();
 	foreach($messages as $message) {
 		touch('../../vegvesen/meldingstyper/'.$message->messageType);
 		if(!vegvesen::filter($message)) continue;
+		if($VERBOSE) echo ".";
 		$mid = (string)$message->messagenumber[0];
 		$active[] = $mid;
 		if($beacon = $bs->getBeacon($mid)) {
 			// existing message
 			if($message->version > $beacon->getRevision()) {
-				echo "UPDATED BEACON\n";
+				//echo "UPDATED BEACON\n";
 				vegvesen::fillBeacon($beacon, $message);
 				$beacon->setLastBeacon(0);
+				$beacon->setInterval(75);
+				$beacon->setExponentialBackoff(true);
+				$beacon->setMaxInterval(1800);
 				$bs->storeBeacon($beacon);
-				var_dump($beacon->getPacket());
+				//var_dump($beacon->getPacket());
 			}
 		} else {
 			// new message
-			echo "NEW BEACON\n";
+			//echo "NEW BEACON\n";
 			$beacon = new aprsBeacon($mid);
-			$beacon->setInterval(30);
+			$beacon->setInterval(75);
+			$beacon->setExponentialBackoff(true);
+			$beacon->setMaxInterval(1800);
 			$obj = new aprsObject();
 			$beacon->setPacket($obj);
 			vegvesen::fillBeacon($beacon, $message);
 			$beacon->setLastBeacon(0);
 			$bs->storeBeacon($beacon);
-			var_dump($obj);
+			//var_dump($obj);
 		}
+		sleep($delay);
 	}
 	
 	$c = 0;
 	foreach($bs->getBeacons() as $beacon) {
 		if(!in_array($beacon->getId(), $active)) {
-			echo "DELETE BEACON\n";
+			//echo "DELETE BEACON\n";
 			// TODO: This really should have a way to TX the removal of the object as well...
 			$bs->deleteBeacon($beacon);
 			$c++;
 		}
 	}
-	if($c > 1) var_dump($xml);
+	//if($c > 1) var_dump($xml);
 } else {
-	echo "Could not retrieve messages. Doing nothing...\n";
+	//echo "Could not retrieve messages. Doing nothing...\n";
+	exit(1);
 }
+
+if($VERBOSE) echo "\n";
 
