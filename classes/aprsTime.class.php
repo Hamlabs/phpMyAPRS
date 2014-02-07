@@ -2,7 +2,7 @@
 
 class aprsTime {
 	static function fromUnixtime($time) {
-		return sprintf('%dz', date('dHi', $time));
+		return sprintf('%06dz', date('dHi', $time));
 	}
 
 	static function now() {
